@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A Brief Survey of Kujamaat Jóola Syntax</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Source+Serif+4:ital,wght@0,400..700;1,400..700&display=swap">
+<style>
+:root{color-scheme:light;--bg:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--card:#f8fafc;--s:#1d4ed8;--v:#6d28d9;--o:#0f766e;--io:#be185d;--ok:#15803d;--bad:#b91c1c;--root:#0f172a;--rootfg:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans SC',system-ui,sans-serif;overflow:hidden}
+#vp{position:fixed;inset:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);overflow:hidden}
+#st{position:absolute;left:0;top:0;transform-origin:0 0}
+.sl{position:absolute;inset:0;padding:48px max(90px,calc((100% - 1420px)/2)) 70px;display:none;flex-direction:column;gap:20px}
+.sl.act{display:flex;animation:fi .5s}
+@keyframes fi{from{opacity:0}}
+.ctr{justify-content:center}
+h1{font:700 84px/1.2 'Noto Sans SC',sans-serif;margin:8px 0}
+h2{font:700 46px/1.25 'Noto Sans SC',sans-serif;margin:0}
+h3{font:700 36px/1.25 'Noto Sans SC',sans-serif;margin:0}
+.eb{font:700 22px 'Noto Sans SC';letter-spacing:3px;color:var(--s);margin:0}
+.lead{font-size:30px;line-height:1.5;color:var(--mut);margin:0}
+.kp{font-size:28px;line-height:1.55;margin:0;padding:12px 24px;border-left:6px solid var(--s);background:var(--card);border-radius:0 14px 14px 0}
+.mut{color:var(--mut);font-size:26px;margin:0}
+.t{font-size:30px;line-height:1.5;margin:0}
+.tr{font:400 36px/1.4 'Source Serif 4','Noto Sans SC',serif;margin:6px 0 0}
+.q{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--io);color:#fff;font-weight:700;font-size:21px}
+[data-s]{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s}
+[data-s].on{opacity:1;transform:none}
+tr[data-s]{transform:none}
+.s{--c:var(--s)}.v{--c:var(--v)}.o{--c:var(--o)}.io{--c:var(--io)}.p,.cls,.red{--c:var(--mut)}.asp{--c:var(--ok)}.root{--c:var(--root)}
+.mn{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:22px}
+.nts{display:flex;flex-direction:column;gap:10px}
+.nt{display:flex;gap:22px;align-items:baseline;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:9px 24px}
+.nt b{flex:none;width:190px;color:var(--s);font-size:25px}
+.nt p{margin:0;font-size:26px;line-height:1.45}
+.sent{display:flex;gap:44px;align-items:flex-start;flex-wrap:nowrap}
+.wd{display:flex;flex-direction:column;gap:8px;transition:opacity .6s}
+.wd.ghost{opacity:.25}
+.f{font:italic 500 var(--fs,58px)/1.2 'Source Serif 4','Noto Sans SC',serif;margin:0;padding:10px 0;border-bottom:6px solid var(--line);transition:border-color .5s}
+.lit .wd .f{border-color:var(--c,var(--line))}
+.g{font:400 26px/1.3 'Source Serif 4',serif;color:var(--mut);margin:0}
+.rc{align-self:flex-start;font:700 21px 'Source Serif 4',serif;padding:2px 14px;border:2px solid var(--c);border-radius:999px;color:var(--c);margin:0}
+.mw{display:flex;gap:0;transition:gap .6s}
+.mw.split{gap:12px}
+.mo{display:flex;flex-direction:column;align-items:center;transition:opacity .6s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.mf{font:italic 600 var(--fs,58px)/1.2 'Source Serif 4',serif;margin:0;padding:10px 0;border:3px solid transparent;border-radius:14px;color:var(--c,var(--ink));transition:all .6s}
+.split .mf{padding:10px 18px;border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.split .root .mf{background:var(--root);color:var(--rootfg)}
+.split .red .mf{border-style:dashed;background:transparent}
+.mg{font:700 24px 'Source Serif 4',serif;color:var(--mut);margin:8px 0 0;opacity:0;transition:opacity .5s .3s}
+.split .mg{opacity:1}
+.mo.ghost{opacity:.25;transform:translateY(-8px)}
+.mo.ghost .mf{border-style:dashed}
+.scatter .mo:nth-child(1){transform:translate(150px,-90px) rotate(-9deg)}
+.scatter .mo:nth-child(2){transform:translate(-60px,70px) rotate(7deg)}
+.scatter .mo:nth-child(3){transform:translate(90px,60px) rotate(-6deg)}
+.scatter .mo:nth-child(4){transform:translate(-120px,-70px) rotate(10deg)}
+.two{display:flex;gap:30px}
+.pn{flex:1;border:2px solid var(--line);border-radius:22px;padding:26px 30px;background:var(--card);display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:16px;align-items:center}
+.k{margin:0;font:italic 600 42px/1.2 'Source Serif 4',serif;border:3px solid var(--c);color:var(--c);border-radius:16px;padding:8px 22px;display:flex;gap:12px;align-items:baseline;background:var(--bg);transition:box-shadow .4s}
+.k span{font:700 21px 'Source Serif 4',serif}
+.k.mv{box-shadow:0 0 0 7px color-mix(in srgb,var(--c) 28%,transparent)}
+.chip{margin:0;font:700 32px 'Source Serif 4','Noto Sans SC';padding:8px 24px;border:3px solid var(--c);border-radius:16px;color:var(--c);transition:opacity .5s}
+.chip.no{opacity:.3;text-decoration:line-through}
+.chip.dim{opacity:.45;border-style:dashed}
+.slot{min-width:150px;min-height:80px;border:3px dashed var(--mut);border-radius:14px;display:flex;align-items:center;justify-content:center;padding:6px}
+.vd{font:700 32px 'Noto Sans SC';margin:0;align-self:center}
+.vd.bad{color:var(--bad)}.vd.ok{color:var(--ok)}
+.tg{right:0;font:700 24px 'Noto Sans SC';padding:4px 18px;border-radius:999px;background:var(--card);border:2px solid var(--line);color:var(--mut);position:absolute;top:0}
+.r2{position:relative;padding-top:84px}
+.tiles{display:flex;align-items:center;gap:36px;justify-content:center}
+.tile{width:330px;padding:30px 0;border:3px solid var(--c);border-radius:24px;text-align:center;color:var(--c)}
+.tl{font:700 110px/1 'Source Serif 4',serif;margin:0}
+.tn{font-size:28px;margin:10px 0 0;color:var(--ink)}
+.arr{font-size:60px;color:var(--mut);margin:0}
+.chain{display:flex;align-items:center;gap:30px;justify-content:center}
+.nd{border:3px solid var(--ink);border-radius:20px;padding:22px 34px;font:700 36px/1.3 'Noto Sans SC';text-align:center}
+.nd small{display:block;font:400 26px 'Source Serif 4',serif;color:var(--mut)}
+.ab{margin:0;font-size:26px;line-height:1.45;display:flex;gap:14px}
+.ab b{flex:none;min-width:140px;color:var(--s);font-family:'Source Serif 4',serif}
+.ols{width:540px;display:flex;flex-direction:column;gap:8px}
+.ot{margin:0;font:600 28px 'Source Serif 4',serif;padding:8px 18px;border:2px solid var(--line);border-radius:12px;color:var(--mut);transition:all .4s;display:flex;gap:12px}
+.ot span{color:var(--c)}
+.ot.cur{border-color:var(--s);background:var(--card)}
+.cap{font-size:30px;line-height:1.5;margin:0;padding:14px 22px;border-radius:14px;background:var(--card);border:2px solid var(--s);min-height:90px}
+.mrow{display:flex;align-items:center;gap:16px}
+.mrow .t{flex:1;margin-left:14px}
+.rt{align-self:center;font:700 38px 'Noto Sans SC';padding:14px 40px;border:3px solid var(--ink);border-radius:20px}
+.rw{display:flex;gap:20px;align-items:baseline}
+.rw .bg{flex:none;width:118px;text-align:center;font:700 21px 'Noto Sans SC';border-radius:999px;padding:2px 0;border:2px solid var(--c);color:var(--c)}
+.rw p{margin:0;font-size:26px;line-height:1.45}
+table{width:100%;border-collapse:collapse;font-size:26px}
+th{text-align:left;background:var(--ink);color:var(--bg);padding:14px 18px}
+td{padding:16px 18px;border-bottom:2px solid var(--line);line-height:1.45;vertical-align:top}
+.ref{font-size:28px;line-height:1.5;margin:0;color:var(--ink)}
+.lay{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.arc{color:var(--c)}
+.arc path{fill:none;stroke:currentColor;stroke-width:5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s ease}
+.arc.on path{stroke-dashoffset:0}
+.arc circle,.arc text{fill:currentColor;opacity:0;transition:opacity .4s .8s}
+.arc text{font:700 24px 'Noto Sans SC'}
+.arc.on circle,.arc.on text{opacity:1}
+.ac-asp{--c:var(--ok)}.ac-o{--c:var(--o)}.ac-io{--c:var(--io)}.ac-v{--c:var(--mut)}
+.toc{display:flex;gap:30px;align-items:center}
+.toc .no{font:700 60px 'Source Serif 4',serif;color:var(--s);margin:0;width:80px;text-align:center}
+/* 封面署名区：标签 + 人名对齐成两列，日期独立一行并以分隔线隔开 */
+.cred{margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.cl{display:grid;grid-template-columns:104px auto;align-items:baseline;gap:18px}
+.cl span{font:600 22px 'Noto Sans SC';letter-spacing:1px;color:var(--mut);white-space:nowrap}
+.cl b{font:700 28px 'Noto Sans SC';color:var(--ink);letter-spacing:1px}
+.cd{margin-top:14px;padding-top:14px;border-top:2px solid var(--line);font:600 25px 'Source Serif 4','Noto Sans SC',serif;color:var(--mut);letter-spacing:2px}
+.eb{letter-spacing:2px}
+#pb{position:absolute;left:0;bottom:0;height:6px;background:var(--s);transition:width .4s}
+#pg{position:absolute;right:40px;bottom:18px;font:600 21px 'Source Serif 4',serif;color:var(--mut)}
+/* 全屏按钮：右下角、低干扰、悬停才明显 */
+#fs{position:absolute;right:34px;bottom:56px;width:56px;height:56px;padding:0;border:2px solid var(--line);
+ border-radius:14px;background:rgba(255,255,255,.86);cursor:pointer;opacity:.42;
+ transition:opacity .25s,background .25s,border-color .25s;z-index:50}
+#fs:hover,#fs:focus-visible{opacity:1;background:#fff;border-color:var(--s);outline:none}
+#fs::before,#fs::after{content:'';position:absolute;width:12px;height:12px;border:3px solid var(--s);transition:all .25s}
+#fs::before{top:13px;left:13px;border-right:0;border-bottom:0;border-radius:3px 0 0 0}
+#fs::after{bottom:13px;right:13px;border-left:0;border-top:0;border-radius:0 0 3px 0}
+#fs.on::before,#fs.on::after{width:10px;height:10px;top:auto;left:auto;bottom:auto;right:auto;border-radius:2px}
+#fs.on::before{top:11px;left:11px;border-right:3px solid var(--s);border-bottom:0;transform:rotate(45deg)}
+#fs.on::after{bottom:11px;right:11px;border-left:3px solid var(--s);border-top:0;transform:rotate(45deg)}
+/* 浏览器不支持/被拒绝时：变红并抖动提示 */
+#fs.nofs{border-color:var(--bad);animation:shake .4s}
+#fs.nofs::before,#fs.nofs::after{border-color:var(--bad)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media print{#fs{display:none}}
+</style></head>
+<body><div id="vp"><div id="st"></div></div>
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RL={s:'S',v:'V',o:'DO',io:'IO',p:'POP'};
+const mo=(f,g,t,id)=>`<div class="mo ${t}"${id?` id="${id}"`:''}><p class="mf">${f}</p><p class="mg">${g}</p></div>`;
+const MW=(id,a,c='')=>`<div class="mw ${c}" id="${id}">${a.map(x=>mo(...x)).join('')}</div>`;
+const wd=(id,f,g,r,gs=0,rc=0)=>`<div class="wd ${r}" id="${id}"><p class="f">${f}</p><p class="g"${gs?` data-s="${gs}"`:''}>${g}</p>${rc?`<p class="rc ${r}" data-s="${rc}">${RL[r]}</p>`:''}</div>`;
+const NT=(l,t,s)=>`<div class="nt" data-s="${s}"><b>${l}</b><p>${t}</p></div>`;
+const P=o=>`<section class="sl ${o.c===undefined?'lit':o.c}" id="${o.id}" data-n="${o.n}" ${o.at||''}><p class="eb">${o.eb}</p><h2>${o.h}</h2>${o.kp?`<p class="kp">${o.kp}</p>`:''}<div class="mn">${o.b}</div>${o.nt?`<div class="nts">${o.nt.map(x=>NT(...x)).join('')}</div>`:''}</section>`;
+const TL=(k,a,b,s)=>`<div class="tile ${k}" data-s="${s}"><p class="tl">${a}</p><p class="tn">${b}</p></div>`;
+const AB=a=>a.map(x=>`<p class="ab"><b>${x[0]}</b>${x[1]}</p>`).join('');
+const TRN=(t,s=0)=>`<p class="tr"${s?` data-s="${s}"`:''}>‘${t}’</p>`;
+const ORD=['io,o,v','o,io,v','io,v,o','o,v,io','v,o,io','v,io,o'].map(x=>x.split(','));
+const FM={io:'εjamεnεy',o:'furiaf',v:'nisεnε'};
+const CAP=['① 基准顺序：间宾 → 直宾 → 动词，即例 (3) 本身。','② 与 ① 相比：直宾与间宾互换位置——“食物”提到“山羊”的前面。','③ 与 ① 相比：动词与直宾互换位置——动词前移到中间，“食物”移到句末。','④ 与 ① 相比：间宾移到句末，直宾和动词各向前挪一位。','⑤ 与 ① 相比：动词移到句首，直宾居中，间宾退到句末（间宾、直宾的先后与 ① 相反）。','⑥ 与 ① 相比：动词移到句首，间宾、直宾的先后与 ① 相同。'];
+const KA=['例 (3)：山羊 – 食物 – 动词。语义上只能把食物给羊，不可能把羊给食物。','调换语序（食物 – 山羊 – 动词）：意思没有变，仍然只有一种理解。','把名词换成 boy 与 girl，再看同样的排列：谁是直宾、谁是间宾，已经分不清了。','把名词换成 boy 与 girl，再看同样的排列：谁是直宾、谁是间宾，已经分不清了。'];
+const H=[
+`<section class="sl lit ctr" id="cover" data-n="3"><p class="eb">MORPHOLOGY · 形态学课程汇报</p><h1>A Brief Survey of<br>Kujamaat Jóola Syntax</h1><p class="lead" data-s="1">Kujamaat Jóola 句法简述：语序与动词形态标记</p><div class="cred" data-s="2"><div class="cl"><span>汇报人</span><b>何典禧　易飞宇</b></div><div class="cl"><span>写稿</span><b>陈鸿宇　彭俊懿</b></div><div class="cl"><span>PPT制作</span><b>陈奕丞　刘诗钊</b></div><div class="cd">11月25日</div></div></section>`,
+P({id:'toc',n:5,eb:`目录`,h:'目录',kp:'本报告考察 Kujamaat Jóola 中 SVO 语序与动词形态标记之间的关系，分为以下五个部分。',b:`<div class="toc" data-s="1"><p class="no">1</p><div><h3>语言背景与符号说明</h3><p class="mut">Kujamaat Jóola 概况 · 术语表 · 句子成分标记 · 例句格式</p></div></div><div class="toc" data-s="2"><p class="no">2</p><div><h3>基本语序 SVO 与主语位置</h3><p class="mut">例 (1)(2)：SVO；限定性小句中主语位于动词之前</p></div></div><div class="toc" data-s="3"><p class="no">3</p><div><h3>动词补语的顺序</h3><p class="mut">名词强调标记 NE · 3.2 带 NE：六种排列与歧义 · 3.3 不带 NE：重述</p></div></div><div class="toc" data-s="4"><p class="no">4</p><div><h3>附加：时—体系统</h3><p class="mut">无时态、体范畴发达：将来体、关系从句、疑问-未完成体</p></div></div><div class="toc" data-s="5"><p class="no">5</p><div><h3>总结</h3><p class="mut">论证脉络 · 结论 · 小结表</p></div></div>`}),
+P({id:'intro',n:4,eb:`1.1 语言背景`,h:'Kujamaat Jóola 是一门什么语言',kp:'它属于尼日尔-刚果语系下的大西洋语支，主要分布在西非塞内加尔（Senegal）的卡萨蒙斯（Casamance）地区。',b:`<div class="chain"><div class="nd" data-s="1">尼日尔-刚果语系<small>Niger-Congo</small></div><p class="arr" data-s="2">→</p><div class="nd" data-s="2">大西洋语支<small>Atlantic</small></div><p class="arr" data-s="3">→</p><div class="nd" data-s="3">Kujamaat Jóola<small>塞内加尔 · 卡萨蒙斯</small></div></div>`,nt:[['本节讨论','Kujamaat Jóola 句法中，SVO 的排列顺序与形态标记规则之间的关系。',4]]}),
+P({id:'abbr',n:3,eb:`1.2 符号说明`,h:'术语与缩写表',kp:'例句中的大写缩写会反复出现。下表列出本报告用到的术语与缩写，按人称与数、名词类、动词形态分组。',b:`<div class="two"><div class="pn" data-s="1"><h3>人称与数</h3>${AB([['1SG','第一人称单数：我'],['2SG','第二人称单数：你'],['3SG','第三人称单数：他 / 她 / 它'],['3PL','第三人称复数：他们']])}</div><div class="pn" data-s="2"><h3>名词类</h3>${AB([['CL','名词类；7CL = 第 7 类'],['DEF','定指后缀；DEF7 = 与第 7 类对应']])}<p class="mut">类前缀会在名词、动词上重复出现，彼此“一致”（agreement）。</p></div><div class="pn" data-s="3"><h3>动词形态</h3>${AB([['SUB / OBJ','主语 / 宾语标记'],['HAB','惯常体'],['REDUP','重叠：词根重复'],['NE','名词强调标记'],['RES','结果性标记'],['INC','未完成体']])}</div></div>`}),
+P({id:'roles',n:5,eb:`1.2 符号说明`,h:'句子成分与下划线颜色',kp:'后面的例句用下划线颜色与标签标出各成分：S（主语，蓝）、V（动词，紫）、DO（直接宾语，青绿）、IO（间接宾语，洋红）。先用英语句子对照。',b:`<div class="sent">${wd('r1','I','主语：做动作的人','s',1,1)}${wd('r2','gave','动词：动作','v',2,2)}${wd('r3','the food','直接宾语：被给予的东西','o',3,3)}${wd('r4','to the goat','间接宾语：接受者','io',4,4)}</div>${TRN('我把食物给了山羊',4)}`,nt:[['为什么要区分','英语靠介词 to 和固定的顺序区分直宾与间宾。Kujamaat Jóola 的顺序较自由，这个区分如何做到，正是本报告要回答的问题。',5]]}),
+P({id:'gloss',n:3,eb:`1.2 符号说明`,h:'例句的逐语素切分与释义格式',kp:'例句按三行呈现：原文（以连字符切分语素）、逐语素释义、自然译文。语素是最小的音义结合单位。',at:'data-sp="g1:2 g2:2"',b:`<div class="sent" style="gap:70px;--fs:64px">${MW('g1',[['ə-','1CL','cls'],['nine','man','root']])}${MW('g2',[['na-','3SG','cls'],['juk','see','root'],['-ε','HAB','asp']])}</div>${TRN('A man sees',3)}`,nt:[['第 1 行：原文','连字符 “-” 标出语素边界：ə- 是名词类前缀，nine 是词根“男人”。',1],['第 2 行：释义','与第 1 行逐个对应：1CL = 第 1 类，3SG = 第三人称单数，HAB = 惯常体。',2],['第 3 行：译文','自然语言的翻译：A man sees。',3]]}),
+P({id:'svo',n:3,eb:`2.1 基本语序 SVO`,h:'起点：基本语序 SVO',kp:'语序的定义：简单陈述句中 Subject（主语）、Verb（动词）、Object（宾语）的排列顺序。在 Kujamaat Jóola 中，基本顺序是 SVO。',b:`<div class="tiles">${TL('s','S','Subject　主语',1)}<p class="arr" data-s="2">→</p>${TL('v','V','Verb　动词',2)}<p class="arr" data-s="3">→</p>${TL('o','O','Object　宾语',3)}</div>`,nt:[['要点','后面所有规则，都以 SVO 作为出发点来讨论。',3]]}),
+P({id:'ex1',n:4,eb:`2.1 基本语序 SVO`,h:'例 (1)：SVO 的实际例子',kp:'主语 the small one、动词 chews、宾语 tobacco，依次排列，这就是 S–V–O。',b:`<div class="sent" style="padding-top:90px">${wd('n1','ñaa','now','p')}${wd('s1','<span id="ag1">fú</span>-tut-af','7CL-small.one-DEF7','s',0,3)}${wd('v1','<span id="ag2">fu</span>-sumbo-e-sumbo','7CL-chew.tobacco-HAB-REDUP','v',0,3)}${wd('o1','sumba-ay','tobacco-DEF10','o',0,3)}</div>${TRN('The small one always chews tobacco',2)}`,nt:[['读法','ñaa 是副词 now，不参与 S–V–O 的排列；其余三个词依次是 S、V、O。',1],['一致','主语的类前缀 fú-（7CL）与动词的类前缀 fu-（7CL）相同：动词上的形态在配合主语。',4]]}),
+P({id:'subj',n:2,eb:`2.2 主语位置`,h:'限定性小句中，主语位于动词之前',kp:'在这一基础上，先明确主语的位置：在限定性小句（finite clause）中，主语一般置于动词之前。',b:`<div class="tiles">${TL('s','S','Subject',0)}<p class="arr">→</p>${TL('v','V','Verb',0)}</div>`,nt:[['限定性小句','动词带有人称、体等形态标记，可以独立成句的小句。',1],['规则','Finite clause: Subject always precedes the verb（S V）。',2]]}),
+P({id:'ex2a',n:2,eb:`2.2 主语位置`,h:'例 (2a)：名词作主语',kp:'A man 是主语，置于动词 sees 之前。',b:`<div class="sent" id="sw2">${wd('v2','na-juk-ε','3SG-see-HAB','v',0,'0')}${wd('n2','ə-nine','1CL-man','s',0,'0')}</div><p class="vd bad" id="b0" style="align-self:flex-start">✗ *na-juk-ε ə-nine　不合语法</p><p class="vd ok" data-s="1" style="align-self:flex-start;margin-top:-60px">✓ ə-nine na-juk-ε　${'‘A man sees’'}</p>`,nt:[['为什么','把名词放到动词后面不合语法（* 表示不合语法）。这个反例是依据“主语在动词前”这条规则推出来的。',0],['一致','动词上的 na-（3SG）是主语标记，与主语保持一致。',2]]}),
+P({id:'ex2b',n:1,eb:`2.2 主语位置`,h:'例 (2b)：代词作主语',kp:'代词 ɔ（He）同样置于动词之前。',b:`<div class="sent">${wd('p2','ɔ','3SG','s',0,'0')}${wd('v3','na-juk-ε','3SG-see-HAB','v',0,'0')}</div>${TRN('He sees')}`,nt:[['对比','(2b) 与 (2a) 的动词形式完全相同，只是主语由名词换成了代词。',1]]}),
+P({id:'ne0',n:3,at:'data-sp="nm:2"',eb:`3.1 名词强调标记（NE）`,h:'名词强调标记 NE',kp:'后面的规则取决于动词上有没有一个后缀 -ε。它叫名词强调标记（noun emphasis，简称 NE），用来强调出现在动词前面的主语或补语。',b:`<div class="sent" style="--fs:68px">${MW('nm',[['ni-','1SG','cls'],['sεn','give','root'],['-ε','NE','asp']])}</div><p class="chip asp" data-s="3" style="align-self:flex-start">-ε　=　NE（noun emphasis，名词强调标记）</p>`,nt:[['动词的构成','以 3.2 例 (3) 的动词 ni-sεn-ε 为例（见第 15 页）：它由人称前缀、词根和一个后缀组成。',1],['拆分','ni-（1SG，“我”）+ sεn（“给”）+ -ε（NE）。',2],['小结','动词带 -ε：带 NE（3.2）；不带 -ε：不带 NE（3.3）。下一页给出整体分叉。',3]]}),
+P({id:'vpl',n:3,eb:`3.1 名词强调标记（NE）`,h:'动词前后的成分怎么排',kp:'在动词短语（VP）中，补语成分的顺序总体较为自由，但根据情况不同有一些规则。下面按动词带不带 NE（上一页的 -ε），分两种情况介绍。',b:`<div class="rt" data-s="1">动词是否带 NE（-ε）？</div><div class="two" style="margin-top:100px"><div class="pn" id="L" data-s="2"><h3>带 NE（3.2）</h3><p class="t">补语排列自由<br>有歧义时：直宾紧邻动词</p></div><div class="pn" id="R" data-s="3"><h3>不带 NE（3.3）</h3><p class="t">前置补语必须被重述<br>两个宾语都重述时：依标记顺序区分</p></div></div>`,nt:[['补语','动词之外、与动词一起构成 VP 的成分，例如直接宾语和间接宾语。',3]]}),
+P({id:'ne',n:3,eb:`3.1 名词强调标记（NE）`,h:'NE 占据宾语标记的位置',kp:'NE 与宾语标记占据动词上的同一个位置，因此它的有无会影响句法成分的顺序。',b:`<div class="mw split" style="align-self:center">${mo('ni-','1SG','cls')}${mo('sεn','give','root')}<div class="mo"><div class="slot" id="slot"></div><p class="mg" style="opacity:1">同一个位置</p></div></div><div class="row" id="tray" data-s="1" style="align-self:center"><p class="chip asp" id="neC">-ε　NE</p><p class="chip io" id="obC">-ɔ　宾语标记</p></div><p class="chip s" id="npC" data-s="3" style="align-self:center">动词前的名词短语 NP</p>`,nt:[['Sapir 的观点','形态上出现 NE，就消除了句法上对应名词短语的必要性。',3],['所以','先看 3.2（带 NE），再看 3.3（不带 NE）。',3]]}),
+P({id:'ex3',n:3,eb:`3.2 带 NE`,h:'例 (3)：间宾、直宾、动词',kp:'以“动词 – 直宾 – 间宾”为例：三个成分、六种排列方式都是允许的。先看基准句。',b:`<div class="sent">${wd('g3','ε-jamεn-εy','3CL-goat-DEF3','io',0,2)}${wd('f3','fu-ri-af','5CL-food-DEF5','o',0,2)}${wd('d3','ni-sεn-ε','1SG-give-NE','v',0,2)}</div>${TRN('I gave the food to the goat',3)}`,nt:[['读法','ε-jamεn-εy “山羊”（间宾），fu-ri-af “食物”（直宾），ni-sεn-ε “我给”（-ε 是 NE）。',1]]}),
+P({id:'six',n:5,eb:`3.2 带 NE`,h:'六种排列：每一种是怎样“交换”出来的',kp:'三个成分共有 3×2×1 = 6 种排列。每换一种，句子的意思不变，仍是 ‘I gave the food to the goat’。',b:`<div class="two"><div style="flex:1;display:flex;flex-direction:column;gap:22px"><div class="row" id="pr"><p class="k io" id="c_io">${FM.io}<span>IO</span></p><p class="k o" id="c_o">${FM.o}<span>DO</span></p><p class="k v" id="c_v">${FM.v}<span>V</span></p></div><p class="cap" id="cap"></p></div><div class="ols">${ORD.map((r,i)=>`<p class="ot"><b>${'①②③④⑤⑥'[i]}</b>${r.map(x=>`<span class="${x}">${FM[x]}</span>`).join('')}</p>`).join('')}</div></div>`,nt:[['为什么意思不变','(3) 没有歧义：语义上只能把食物给羊，不可能把羊给食物，所以怎么排都不会误解。',1],['强调什么？','不同排列各自强调的具体信息，教材没有指明；我们推测可能与语用因素有关。',5]]}),
+P({id:'amb',n:3,eb:`3.2 带 NE`,h:'顺序自由，会带来歧义',kp:KA[0],b:`<div class="sent" id="as">${wd('aA','ε-jamεn-εy','3CL-goat-DEF3','io',0,'0')}${wd('aB','fu-ri-af','5CL-food-DEF5','o',0,'0')}${wd('aV','ni-sεn-ε','1SG-give-NE','v',0,'0')}</div><p class="tr" id="atr" style="font-size:32px;margin:0"></p><p class="vd" id="avd" style="align-self:flex-start;font-size:28px"></p>`,nt:[['语义','食物不可能“接受”山羊，所以无论怎么排，听者都只会得到同一种理解。',1],['歧义','boy 和 girl 都可能是直宾，也都可能是间宾；光看顺序分不出来。',2],['有歧义时的规则','把直宾放在离动词最近的地方，依据与动词的距离区分直宾和间宾。',3]]}),
+P({id:'ex4',n:2,c:'',at:'data-lit="2"',eb:`3.2 带 NE`,h:'动词在句首：直宾紧跟动词',kp:'规则（postverbal components）：动词居首时，直宾紧跟在动词后面。例 (4) 中 boy 离动词更近，所以 boy 是直宾。',b:`<div class="sent" style="padding-top:10px">${wd('vb4','ni-sεn-ε','1SG-give-NE','v',0,2)}${wd('bo4','a-kamban-aw','1CL-boy-DEF1','o',0,2)}${wd('gi4','a-jaŋ-aw','1CL-girl-DEF1','io',0,2)}</div><p style="margin-top:60px"></p>${TRN('I gave the boy to the girl')}`,nt:[['读法','箭头表示到动词的距离：boy 较近，girl 较远。',1],['结论','boy 是直宾，girl 是间宾，不需要任何额外标记。',2]]}),
+P({id:'ex5',n:2,c:'',at:'data-lit="2"',eb:`3.2 带 NE`,h:'动词在句末：直宾紧邻动词之前',kp:'规则（preverbal components）：动词居末时，直宾紧挨在动词前面。例 (5) 中 boy 仍离动词更近，所以 boy 仍是直宾，句意不变。',b:`<div class="sent" style="padding-top:10px">${wd('gi5','a-jaŋ-aw','1CL-girl-DEF1','io',0,2)}${wd('bo5','a-kamban-aw','1CL-boy-DEF1','o',0,2)}${wd('vb5','ni-sεn-ε','1SG-give-NE','v',0,2)}</div><p style="margin-top:90px"></p>${TRN('I gave the boy to the girl')}`,nt:[['对照','(4) 与 (5) 用的词相同、句意也相同；变的是动词的位置，不变的是“直宾离动词最近”。',2]]}),
+P({id:'mid',n:3,eb:`3.2 带 NE`,h:'为什么动词不能放在中间',kp:'教材没有说明，我们推测：动词只能放在最前或最后，这样两个宾语到动词的距离才有差别；动词放在中间的两种排列不被允许。',b:[['v,o,io','到动词的距离：DO 1，IO 2 → 能区分',1,1],['io,o,v','到动词的距离：IO 2，DO 1 → 能区分',1,2],['io,v,o','到动词的距离：IO 1，DO 1 → 距离相同，无法区分',0,3]].map(r=>`<div class="mrow" data-s="${r[3]}">${r[0].split(',').map(c=>`<p class="k ${c}">${{v:'V',o:'DO',io:'IO'}[c]}</p>`).join('')}<p class="t">${r[1]}</p><p class="vd ${r[2]?'ok':'bad'}">${r[2]?'✓':'✗'}</p></div>`).join(''),nt:[['说明','以上是我们的推测，教材没有明确说明。',3]]}),
+P({id:'no_ne',n:3,eb:`3.3 不带 NE`,h:'没有 NE：前置补语必须被重述',kp:'如果动词没有被 NE 标记，那么动词前面的成分需要被重述（restated）。重述有两种方式：在动词上加 bound person marker，或在动词后加一个宾语代词。',b:`<p class="chip s" id="npbox" data-s="1" style="align-self:center">动词前的补语（如 Alasan）</p><div class="two" style="margin-top:70px"><div class="pn" id="nA" data-s="2"><h3>方式一：bound person marker</h3><p class="t">加在动词上的绑定人称标记</p></div><div class="pn" id="nB" data-s="3"><h3>方式二：freestanding object pronoun</h3><p class="t">放在动词后面的独立宾语代词</p></div></div>`,nt:[['术语','bound：黏附在动词上，不能单独成词；freestanding：可以独立成词。',3]]}),
+P({id:'b5',n:3,at:'data-sp="bv:1" data-gh="bm:3"',eb:`3.3.1 一个前置成分`,h:'方式一：bound person marker',kp:'先看只有一个成分在动词前的情况：Alasan 在动词前，动词上加 ɔ 这个标记来重述它。',b:`<div class="sent" style="padding-top:90px">${wd('ba','alasan','Alasan','io',0,'0')}${MW('bv',[['ni-','1SG.SUB','cls'],['sεn','give','root'],['-ɔ','3SG.OBJ','io','bm'],['-sεn','REDUP','red']])}${wd('bn','bə-kor-əb','13CL-money-DEF13','o',0,'0')}<p class="vd bad" data-s="3" style="margin-left:auto">✗ 不合语法</p></div>${TRN('I gave Alasanne the money')}`,nt:[['读法','ɔ 是 3SG.OBJ（第三人称单数宾语标记），回指前面的 Alasan；末尾的 -sεn 是重叠（REDUP）。',2],['检验','省略 -ɔ- 就不合语法：Alasan 是人（[+human]），必须重述。',3]]}),
+P({id:'p6a',n:2,at:'data-gh="bb6:2"',eb:`3.3.1 一个前置成分`,h:'方式二：freestanding object pronoun',kp:'money 在动词前，动词后加上代词 bɔ 来重述它。bɔ 可以独立成词，13CL 说明它与 money 同属第 13 类。',b:`<div class="sent" style="padding-top:90px">${wd('m6','bə-kor-əb','13CL-money-DEF13','o',0,'0')}${wd('v6','ni-sεn-sεn','1SG-give-REDUP','v',0,'0')}${wd('bb6','(bɔ)','(13CL)','p',0,'0')}${wd('a6','alasan','Alasan','io',0,'0')}<p class="vd ok" data-s="2" style="margin-left:auto">✓ 省略仍合语法</p></div>${TRN('I gave the money to Alasanne')}`,nt:[['读法','bɔ 位于动词之后，重述前置的 money。',1],['为什么可以省略','money 不是人（[–human]），所以 (bɔ) 带括号：可以不出现。',2]]}),
+P({id:'p6b',n:1,eb:`3.3.1 一个前置成分`,h:'同样的方式：cow 由 yɔ 重述',kp:'cow 在动词前，动词后的 yɔ 重述它；ja 的意思是“如果”。',b:`<div class="sent" style="padding-top:90px">${wd('pc','e-bə:y','3CL-cow.DEF3','io',0,'0')}${wd('pv2','i-sεn','1SG-give','v',0,'0')}${wd('py','(yɔ)','(3CL.3SG)','p',0,'0')}${wd('pj','ja','if','p')}${wd('pf','fu-ri-af','5CL-food-DEF5','o',0,'0')}</div>${TRN('If I give the food to the cow')}`,nt:[['读法','yɔ 同时带有名词类（3CL）和人称数（3SG）的信息，是独立的宾语代词。',1]]}),
+P({id:'human',n:4,at:'data-gh="hx:3 hbo:4"',eb:`3.3.1 一个前置成分`,h:'什么时候必须重述',kp:'前置成分是人（[+human]）时，重述是强制的（例 5）；不是人（[–human]）时，重述只是更常见（preferable），并非强制（例 6）。',b:`<div class="r2" style="--fs:44px"><span class="tg" data-s="1">[+human] Alasan：重述强制</span><div class="sent">${wd('hal','alasan','','io')}${MW('hm',[['ni-','','cls'],['sεn','','root'],['-ɔ','','io','hx'],['-sεn','','red']],'split')}${wd('hn','bə-kor-əb','','o')}<p class="vd bad" data-s="3" style="margin-left:auto">✗ 去掉 -ɔ- 不合语法</p></div></div><div class="r2" style="--fs:44px"><span class="tg" data-s="2">[–human] money：重述可选</span><div class="sent">${wd('hmn','bə-kor-əb','','o')}${MW('hm2',[['ni-','','cls'],['sεn','','root'],['-sεn','','red']],'split')}${wd('hbo','(bɔ)','','p')}${wd('hal2','alasan','','io')}<p class="vd ok" data-s="4" style="margin-left:auto">✓ 去掉 (bɔ) 仍合语法</p></div></div>`,nt:[['所以','例 (6) 中的 (bɔ)、(yɔ) 带括号，表示这类代词可以不出现。',4]]}),
+P({id:'two',n:2,eb:`3.3.2 两个前置成分`,h:'直宾、间宾都在动词前',kp:'如果两个宾语都在动词前，理论上它们都需要被重述；两者都可以用 bound 代词来重述（例 7）。',b:`<div class="two"><div class="pn" data-s="1"><h3>理论上</h3><div class="row"><p class="k o">DO 前置</p><p class="k io">IO 前置</p></div><p class="t">两个都可以被重述。</p></div><div class="pn" data-s="2"><h3>Sapir 的说法</h3><p class="t">只有一个是强制的，另一个是可选的。</p><p class="t"><b class="q">?</b>　但他没有说明强制的是直宾还是间宾。</p></div></div>`,nt:[['下面讨论','接下来两页，讨论两个宾语都被重述的情形。',2]]}),
+P({id:'ex7a',n:2,at:'data-sp="va:1"',eb:`3.3.2 两个前置成分`,h:'例 (7a)：-il 在前，-ɔ 在后',kp:'两个都被重述时，间宾的代词标记放在直宾的代词标记之前。动词里先出现 3PL（-il），后出现 3SG（-ɔ）。',b:`<div class="r2" style="--fs:46px;padding-top:110px"><div class="sent">${wd('ca','a-ɲil-aw','1CL-child-DEF1','p',0,2)}${wd('wa','ku-sεk-ak','2CL-woman-DEF2','p',0,2)}${MW('va',[['ni-','1SG','cls'],['sεn','give','root'],['-il','3PL','io','ila'],['-ɔ','3SG','o','oa'],['-sεn','REDUP','red']])}</div></div>${TRN('I gave the child to the women')}`,nt:[['规则','The bound indirect object pronoun precedes the direct object pronoun：间宾标记在前。',1],['判断','women 是复数，对应更靠前的 3PL 标记 -il → women 是间宾；child 对应靠后的 -ɔ → child 是直宾。',2]]}),
+P({id:'ex7b',n:2,at:'data-sp="vb7:1"',eb:`3.3.2 两个前置成分`,h:'例 (7b)：-ɔ 在前，-i: 在后',kp:'同样的规则：动词里先出现 3SG（-ɔ），后出现 3PL（-i:）。名词的顺序与 (7a) 完全相同，角色却互换了。',b:`<div class="r2" style="--fs:46px;padding-top:110px"><div class="sent">${wd('cb','a-ɲil-aw','1CL-child-DEF1','p',0,2)}${wd('wb','ku-sεk-ak','2CL-woman-DEF2','p',0,2)}${MW('vb7',[['ni-','1SG','cls'],['sεn','give','root'],['-ɔ','3SG','io','mob'],['-i:','3PL','o','mib'],['-sεn','REDUP','red']])}</div></div>${TRN('I gave the women to the child')}`,nt:[['判断','women 的 3PL 标记现在靠后 → women 是直宾；child 的 3SG 标记靠前 → child 是间宾。',2],['形式变化','3PL 放在后面时，形式由 -il 变成 -i:。教材未说明原因，可能是某种形态变化。',2]]}),
+P({id:'cmp',n:2,eb:`3.3.2 两个前置成分`,h:'带 NE 与不带 NE：两种判断依据',kp:'可以看出，在没有 NE 的情况下，不采用“哪个成分离动词更近”的规则，而是采用重述标记的顺序来判断直宾和间宾。',b:`<div class="two"><div class="pn" data-s="1"><h3>带 NE（3.2）</h3><div class="row"><p class="k v">V</p><p class="k o">DO</p><p class="k io">IO</p></div><p class="t">看<b>距离</b>：直宾离动词最近。</p></div><div class="pn" data-s="2"><h3>不带 NE（3.3）</h3><div class="row"><p class="k io">-il</p><p class="k o">-ɔ</p></div><p class="t">看<b>重述标记的顺序</b>：间宾标记在前，直宾标记在后。</p></div></div>`}),
+P({id:'ex8',n:2,eb:`3.3.2 两个前置成分`,h:'例 (8)：两个都是 [–human]',kp:'如果两个前置成分都是 [–human]，只有一个被重述，而且被重述的往往是间宾。例 (8) 中只有间宾 goat 通过 yɔ 被重述。',b:`<div class="sent" style="padding-top:90px">${wd('e8g','ε-jamεn-εy','3CL-goat-DEF3','io',0,'0')}${wd('e8f','fu-ri-af','5CL-food-DEF5','o',0,'0')}${wd('e8v','ni-sεn-sεn','1SG-give-REDUP','v',0,'0')}${wd('e8y','yɔ','3CL.it','p',0,'0')}</div>${TRN('I gave the food to the goat')}`,nt:[['POP','POP = postverbal object pronoun（动词后宾语代词），即用来重述的那个代词。',1],['为什么是间宾','宾语都在动词之前时，被重述的一般是间接宾语。',2]]}),
+P({id:'tense',n:3,eb:`4 时—体系统（附加）`,h:'没有时态，只有体',kp:'时间—体系统是语言中动词显著的句法特征。Kujamaat Jóola 的特点是：时间范畴不发达，体范畴发达，并且高度依赖形态变化来体现。',b:`<div class="two"><div class="pn" data-s="1" style="border-style:dashed"><h3>时态（tense）</h3><p class="t">过去、现在等与时间有关的概念</p><p class="vd bad" style="align-self:flex-start">✗ 没有直接表达</p></div><div class="pn" data-s="2"><h3>体（aspect）</h3><div class="row"><p class="chip asp">持续</p><p class="chip asp">完成</p><p class="chip asp">疑问 / 存疑</p></div></div></div>`,nt:[['体是什么','体表达的是动作本身的性质，或说话人的态度，而不是时间。',3]]}),
+P({id:'unm',n:2,eb:`4 时—体系统（附加）`,h:'没有标记的动词：现在还是过去',kp:'动词的无标记形式，既可以被解读为现在时，也可以被解读为过去时。',b:`<div class="sent">${wd('ub','e-bəy','3CL-cow.DEF3','o',0,'0')}${wd('uv','ni-ŋar-ε','1SG.SUB-take-NE','v',0,'0')}</div><p class="tr">‘I <span id="tg">take / took</span> the cow’</p>`,nt:[['要点','动词上没有任何与时间有关的标记，是现在还是过去，要靠语境判断。',2]]}),
+P({id:'fut',n:3,at:'data-sp="fa:1 fb:3"',eb:`4 时—体系统（附加）`,h:'将来：结果性标记 pan-',kp:'将来由结果性标记 pan-（肯定）和 lɛ-∼lɛt-（否定）表示，出现在主语屈折标记之外；pan- 的 -n 在鼻音前脱落。',b:`<div class="r2" style="--fs:44px;padding-top:80px"><div class="sent">${MW('fa',[['pa-','RES','asp','pa'],['ni-','1SG.SUB','cls','fni'],['ŋar','take','root']])}${wd('fc','e-bəy','3CL-cow.DEF3','o')}${TRN('I will take the cow',2).replace('class="tr"','class="tr" style="align-self:center;margin-left:30px"')}</div></div><div class="r2" data-s="3" style="--fs:44px;padding-top:0"><div class="sent">${MW('fb',[['lɛt-','RES.NEG','asp'],['i-','1SG.SUB','cls'],['maŋ','want','root']])}${TRN('I won’t want')}</div></div>`,nt:[['读法','主语标记 ni-（1SG.SUB）靠近词根，结果性标记 pa- 在它的外面。',2],['否定','否定形式用 lɛt-（RES.NEG）代替 pa-。',3]]}),
+P({id:'rel',n:2,eb:`4 时—体系统（附加）`,h:'关系从句中的将来：附着词 -pi',kp:'在关系从句中，将来由结果性附着词 -pi 表达，它与关系化的主语或宾语的一致标记结合（Sapir 1965: 92）。',b:`<div class="sent" style="padding-top:90px">${wd('rc','a-ɲil-aw','1CL-child-DEF1','o',0,'0')}${wd('rp','a-pi','1CL-RES','asp')}${wd('rb','bakari','Bakari','s',0,'0')}${wd('rw','a-pɔs-i','1CL-wash-2SG.OBJ','v',0,'0')}</div>${TRN('the child whom Bakari will wash for you',1)}`,nt:[['读法','a-pi 由第 1 类一致标记 a- 加结果性附着词 -pi 组成，与被关系化的名词 a-ɲil-aw（child，第 1 类）一致。',2]]}),
+P({id:'dub',n:3,at:'data-sp="dv:1"',eb:`4 时—体系统（附加）`,h:'后缀 -ɛ:n：未完成，或存疑',kp:'疑问-未完成体（dubitive-incompletive）-ɛ:n：既可以表示事件未完成（像英语或罗曼语的未完成体），也可以表示事件存疑。',b:`<div class="sent" style="--fs:54px">${MW('dv',[['lɛt-','RES.NEG','asp'],['u-','2SG.SUB','cls'],['juk','see','root'],['-ɛ:n','INC','asp'],['-ɔl','3SG.OBJ','io']])}</div>${TRN('If you had been looking for Bassen, you might not have seen him',3)}`,nt:[['-ɛ:n','INC：动作未完成，或存疑。前半句 nu-ɲɛs-ɛ:n-ɛ（“你在找”）同样带 -ɛ:n。',2],['lɛt- + -ɛ:n','与否定的结果性前缀 lɛt- 连用，表示某事“可能会”或“可能不会”发生，可译为 might (not) have。',3]]}),
+P({id:'recap',n:7,eb:`5 总结`,h:'论证的整体脉络',kp:'把前面的内容连起来，一步一步回顾。',b:[['语序','基本语序是 SVO；限定性小句中，主语一般置于动词之前。','s'],['分情况','VP 中补语的顺序较复杂，按有无 NE（名词强调）分情况。','v'],['带 NE','V、IO、DO 可以随意组合；有歧义时，直宾放在离动词更近的位置。教材未指明不同排列强调什么，我们推测与语用因素有关。','o'],['不带 NE','动词前的补语必须被重述：在动词上加 bound 标记，或在动词后加 freestanding 宾语代词。','io'],['一个前置','重述它即可；前置成分是 non-human 时，重述只是 preferable，不强制。','io'],['两个前置','Sapir：只有一个是强制的（未说明是哪个）；都被重述时，间宾标记在直宾标记前；都是 non-human 时，只重述一个，往往是间宾。','io'],['没有时态','动词上没有与时态有关的标记：同样的动词形式，既可解读为过去，也可解读为现在。','p']].map((r,i)=>`<div class="rw ${r[2]}" data-s="${i+1}"><span class="bg">${r[0]}</span><p>${r[1]}</p></div>`).join('')}),
+P({id:'concl',n:2,eb:`5 总结`,h:'为什么说它是 Morphosyntax 的好例子',kp:'在词语之间的线性顺序上，甚至在时态这样的基本语法范畴上，Kujamaat Jóola 都有很高的自由度；但同时，动词形态承担了大量语法关系的表达任务。',b:`<div class="two"><div class="pn" data-s="1"><h3>线性顺序：高度自由</h3><div class="row" id="sh"><p class="k io">IO</p><p class="k o">DO</p><p class="k v">V</p></div><p class="mut">甚至没有专门的时态范畴</p></div><div class="pn" data-s="2"><h3>动词形态：承担语法关系</h3>${MW('lk',[['ni-','1SG.SUB','cls'],['sεn','give','root'],['-ɔ','3SG.OBJ','io'],['-sεn','REDUP','red']],'split scatter')}</div></div>`}),
+P({id:'tbl',n:3,eb:`5 总结`,h:'三种句式的规则对照',b:`<table><tr><th style="width:21%">句式类型</th><th style="width:23%">动词形态</th><th style="width:17%">适用场景</th><th>规则</th></tr><tr data-s="1"><td>3.2 NE 名词强调</td><td>后缀 -ε；无复指、无重叠</td><td>宾语任意排布</td><td>带 NE，豁免复指与重叠</td></tr><tr data-s="2"><td>3.3 普通无 NE（中缀复指）</td><td>复指中缀 + REDUP 重叠</td><td>至少一个宾语前置</td><td>无 NE；人类前置宾语必须复指（bound / freestanding 二选一），非人类前置宾语复指可选；宾语前置触发 REDUP</td></tr><tr data-s="3"><td>3.3 普通无 NE（freestanding 代词复指）</td><td>无内部复指中缀 + REDUP 重叠</td><td>至少一个宾语前置</td><td>无 NE；freestanding 代词承担复指，动词不带 bound 中缀，保留 REDUP</td></tr></table>`}),
+P({id:'refs',n:0,eb:'REFERENCES',h:'参考文献',b:`<p class="ref">Aronoff, M., &amp; Fudeman, K. (2011). <i>What is morphology?</i> (2nd ed.). Wiley-Blackwell.</p><p class="ref">Hopkins, B. (1990). La phrase complexe en diola-fogny (ouest-atlantique): Propositions relatives. <i>Journal of West African Languages, 20</i>, 81–98.</p><p class="ref">Sapir, J. D. (1965). <i>A grammar of Diola-Fogny: A language spoken in the Basse-Casamance region of Senegal</i>. Cambridge University Press.</p>`})
+,`<section class="sl lit ctr" id="thx" data-n="1"><p class="eb">THANK YOU</p><h1>谢谢</h1><p class="lead" data-s="1">欢迎提问与讨论 · Questions &amp; discussion</p></section>`
+];
+const st=$('#st');st.innerHTML=H.join('')+'<div id="pg"></div><div id="pb"></div><button id="fs" type="button" aria-label="全屏" title="全屏（F 键）"></button>';
+const S=$$('.sl'),N=S.length,NS='http://www.w3.org/2000/svg';
+const AR={ex1:[['#ag1','#ag2','asp',4,99,'top',80,'类一致（7CL）']],
+vpl:[['#rt','#L','v',2,99,'v',50,''],['#rt','#R','v',3,99,'v',50,'']].map(a=>(a[0]='.rt',a)),
+ex4:[['#vb4','#bo4','o',1,99,'bottom',60,'较近'],['#vb4','#gi4','io',1,99,'bottom',125,'较远']],
+ex5:[['#vb5','#bo5','o',1,99,'bottom',60,'较近'],['#vb5','#gi5','io',1,99,'bottom',125,'较远']],
+no_ne:[['#npbox','#nA','v',2,99,'v',50,''],['#npbox','#nB','v',3,99,'v',50,'']],
+b5:[['#ba','#bm','io',2,3,'top',90,'重述']],
+p6a:[['#m6','#bb6','o',1,99,'top',80,'重述']],
+p6b:[['#pc','#py','io',1,99,'top',90,'重述']],
+human:[['#hal','#hx','io',1,99,'top',60,''],['#hmn','#hbo','o',2,99,'top',70,'']],
+ex7a:[['#wa','#ila','io',2,99,'top',60,''],['#ca','#oa','o',2,99,'top',100,'']],
+ex7b:[['#cb','#mob','io',2,99,'top',60,''],['#wb','#mib','o',2,99,'top',100,'']],
+ex8:[['#e8g','#e8y','io',1,99,'top',90,'重述']],
+fut:[['#pa','#fni','asp',2,99,'top',60,'位于主语标记之外']],
+rel:[['#rc','#rp','asp',2,99,'top',70,'类一致（1CL）']]};
+const ARC=[];
+for(const id in AR){const el=$('#'+id),sv=document.createElementNS(NS,'svg');sv.setAttribute('class','lay');el.appendChild(sv);
+ AR[id].forEach(a=>{const g=document.createElementNS(NS,'g');g.setAttribute('class','arc ac-'+a[2]);g.innerHTML='<path pathLength="1"/><circle r="7"/><text></text>';sv.appendChild(g);ARC.push({id,g,f:a[0],t:a[1],s:a[3],x:a[4],side:a[5],lift:a[6],lab:a[7]})})}
+let K=1,I=-1,J=0,T=[];
+const clearT=()=>{T.forEach(clearInterval);T=[]};
+const pos=e=>{const r=e.getBoundingClientRect(),s=st.getBoundingClientRect();return{x:(r.left-s.left)/K,y:(r.top-s.top)/K,w:r.width/K,h:r.height/K}};
+function lay(){if(I<0)return;const id=S[I].id;ARC.filter(a=>a.id===id).forEach(a=>{const fe=$(a.f,S[I]),te=$(a.t,S[I]);if(!fe||!te)return;const f=pos(fe),t=pos(te);let x1=f.x+f.w/2,x2=t.x+t.w/2,y1,y2,d1,d2;
+ if(a.side==='v'){y1=f.y+f.h+4;y2=t.y-10;d1=a.lift;d2=-a.lift}else if(a.side==='top'){y1=f.y-6;y2=t.y-10;d1=d2=-a.lift}else{y1=f.y+f.h+6;y2=t.y+t.h+10;d1=d2=a.lift}
+ $('path',a.g).setAttribute('d',`M${x1} ${y1}C${x1} ${y1+d1} ${x2} ${y2+d2} ${x2} ${y2}`);const c=$('circle',a.g);c.setAttribute('cx',x2);c.setAttribute('cy',y2);
+ const tx=$('text',a.g);tx.textContent=a.lab;if(a.side==='bottom'){const r=x1<x2;tx.setAttribute('text-anchor',r?'start':'end');tx.setAttribute('x',x2+(r?22:-22));tx.setAttribute('y',y2+34)}else{tx.setAttribute('text-anchor','middle');tx.setAttribute('x',(x1+x2)/2);tx.setAttribute('y',(y1+y2)/2-a.lift*.75-12)}})}
+function flip(els,fn,d=650){const b=els.map(e=>e.getBoundingClientRect());fn();els.forEach((e,i)=>{const a=e.getBoundingClientRect();e.animate([{transform:`translate(${(b[i].left-a.left)/K}px,${(b[i].top-a.top)/K}px)`},{transform:'none'}],{duration:d,easing:'cubic-bezier(.2,.8,.2,1)'})});setTimeout(lay,d+40)}
+const RR=(id,r)=>{const e=$('#'+id);e.className='wd '+r;const c=$('.rc',e),on=c.classList.contains('on');c.className='rc '+r+(on?' on':'');c.textContent=RL[r]};
+const F={
+amb(j){const r=$('#as'),A=$('#aA'),B=$('#aB'),w=j>=1,g=j>=2;if((r.firstElementChild===B)!==w)flip([A,B],()=>w?r.insertBefore(B,A):r.insertBefore(A,B));
+ const set=(e,f,t,role)=>{e.className='wd '+role;$('.f',e).textContent=f;$('.g',e).textContent=t;const c=$('.rc',e);c.className='rc '+role+' on';c.textContent=g?'?':RL[role]};
+ g?(set(A,'a-jaŋ-aw','1CL-girl-DEF1','p'),set(B,'a-kamban-aw','1CL-boy-DEF1','p')):(set(A,'ε-jamεn-εy','3CL-goat-DEF3','io'),set(B,'fu-ri-af','5CL-food-DEF5','o'));
+ $('.kp',S[I]).textContent=KA[Math.min(j,3)];$('#atr').innerHTML=g?'A：‘I gave the boy to the girl’　　B：‘I gave the girl to the boy’':'‘I gave the food to the goat’';
+ const v=$('#avd');v.className='vd '+(g?'bad':'ok');v.textContent=j<1?'':(g?'⚠ 两种理解都成立':'✓ 只有一种理解')},
+concl(j){if(j>=1&&!T.length)T.push(setInterval(()=>{const r=$('#sh'),c=$$('.k',r);flip(c,()=>c.sort(()=>Math.random()-.5).forEach(e=>r.appendChild(e)),700)},1500));if(j<1)clearT();if(j>=2)setTimeout(()=>$('#lk').classList.remove('scatter'),500);else $('#lk').classList.add('scatter')},
+ex2a(j){const r=$('#sw2'),n=$('#n2'),v=$('#v2'),w=j>=1;$('#b0').style.opacity=w?0:1;if((r.firstElementChild===n)!==w)flip([n,v],()=>w?r.insertBefore(n,v):r.insertBefore(v,n))},
+ne(j){const sl=$('#slot'),c=$('#neC'),w=j>=2;if((c.parentNode===sl)!==w)flip([c],()=>(w?sl:$('#tray')).prepend(c));$('#obC').classList.toggle('no',w);$('#npC').classList.toggle('dim',j>=3)},
+six(j){const k=Math.min(j,5),r=$('#pr'),c=['io','o','v'].map(x=>$('#c_'+x)),cur=$$('.k',r).map(e=>e.id.slice(2)).join();if(cur!==ORD[k].join())flip(c,()=>ORD[k].forEach(x=>r.appendChild($('#c_'+x))),600);c.forEach(e=>e.classList.toggle('mv',k>0&&ORD[k].indexOf(e.id.slice(2))!==ORD[0].indexOf(e.id.slice(2))));$('#cap').textContent=CAP[k];$$('.ot').forEach((e,i)=>e.classList.toggle('cur',i===k))},
+ex7a(j){const a=j>=2;RR('ca',a?'o':'p');RR('wa',a?'io':'p');S[I].classList.toggle('lit',a)},
+ex7b(j){const a=j>=2;RR('cb',a?'io':'p');RR('wb',a?'o':'p');S[I].classList.toggle('lit',a)},
+unm(j){const e=$('#tg');if(j>=2&&!T.length){e.textContent='take';T.push(setInterval(()=>{e.textContent=e.textContent==='take'?'took':'take'},1400))}if(j<2){clearT();e.textContent='take / took'}}};
+function apply(){const s=S[I],d=s.dataset;$$('[data-s]',s).forEach(e=>e.classList.toggle('on',+e.dataset.s<=J));ARC.forEach(a=>{if(a.id===s.id)a.g.classList.toggle('on',J>=a.s&&J<a.x)});
+ if(d.lit)s.classList.toggle('lit',J>=+d.lit);
+ ['sp','gh'].forEach(k=>(d[k]||'').split(' ').filter(Boolean).forEach(x=>{const[a,n]=x.split(':'),e=$('#'+a,s);if(e)e.classList.toggle(k==='sp'?'split':'ghost',J>=+n)}));
+ F[s.id]&&F[s.id](J);lay();setTimeout(lay,700);$('#pg').textContent=`${I+1} / ${N}`;$('#pb').style.width=((I+(J/(+d.n||1)))/N*100)+'%'}
+function go(i,j){i=Math.max(0,Math.min(N-1,i));if(i!==I){clearT();S.forEach(s=>s.classList.remove('act'));I=i;S[I].classList.add('act')}J=Math.max(0,Math.min(+S[I].dataset.n,j));apply()}
+const next=()=>J<+S[I].dataset.n?go(I,J+1):go(I+1,0),prev=()=>J>0?go(I,J-1):I>0&&go(I-1,+S[I-1].dataset.n);
+addEventListener('keydown',e=>{if(e.key==='f'||e.key==='F'){e.preventDefault();toggleFs();return}if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev()}else if(e.key==='Home')go(0,0);else if(e.key==='End')go(N-1,9)});
+$('#vp').addEventListener('click',e=>{const r=$('#vp').getBoundingClientRect();(e.clientX-r.left)<r.width*.25?prev():next()});
+function fit(){const v=$('#vp'),w=v.clientWidth,hh=v.clientHeight;K=Math.min(w/1600,hh/900);st.style.width=w/K+'px';st.style.height=hh/K+'px';st.style.transform=`scale(${K})`;lay()}
+
+/* ============ Fullscreen API ============ */
+const fsBtn=$('#fs');
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement||document.msFullscreenElement;
+function syncFs(){
+  const on=!!fsEl();
+  fsBtn.classList.toggle('on',on);
+  fsBtn.setAttribute('aria-label',on?'退出全屏':'进入全屏');
+  fsBtn.setAttribute('title',on?'退出全屏（Esc 或 F 键）':'进入全屏（F 键）');
+  setTimeout(()=>{fit();lay()},120);
+}
+function toggleFs(){
+  if(fsEl()){
+    (document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen).call(document);
+  }else{
+    const el=document.documentElement;
+    const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen||el.webkitRequestFullScreen;
+    if(!req){fsBtn.classList.add('nofs');setTimeout(()=>fsBtn.classList.remove('nofs'),1200);return;}
+    try{const p=req.call(el);
+      if(p&&p.catch)p.catch(()=>{fsBtn.classList.add('nofs');setTimeout(()=>fsBtn.classList.remove('nofs'),1200);});
+    }catch(e){fsBtn.classList.add('nofs');setTimeout(()=>fsBtn.classList.remove('nofs'),1200);}
+  }
+}
+['fullscreenchange','webkitfullscreenchange','msfullscreenchange'].forEach(t=>document.addEventListener(t,syncFs));
+fsBtn.addEventListener('click',e=>{e.stopPropagation();toggleFs()});
+addEventListener('resize',fit);fit();go(0,0);(document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>{fit();lay()});
+</script></body></html>
