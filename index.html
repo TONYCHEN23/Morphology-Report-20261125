@@ -96,11 +96,13 @@ td{padding:16px 18px;border-bottom:1.5px solid var(--line);vertical-align:top}
 .ref{font:400 25px/1.6 'Source Serif 4',Georgia,serif;margin:0;color:var(--ink);padding-left:2em;text-indent:-2em;max-width:68ch}
 .lay{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .arc{color:var(--c)}
-.arc path{fill:none;stroke:currentColor;stroke-width:4.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s ease}
+.arc path{fill:none;stroke:currentColor;stroke-width:4.5;stroke-linecap:round;stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset .9s ease,opacity .12s linear}
+.arc.on path{opacity:1}
 .arc.on path{stroke-dashoffset:0}
-.arc circle,.arc text{fill:currentColor;opacity:0;transition:opacity .4s .8s}
+.arc circle,.arc text{fill:currentColor;opacity:0;visibility:hidden;transition:opacity .4s .8s,visibility .4s .8s}
+.arc:hover circle{visibility:hidden}
 .arc text{font:600 19px/1.2 'Inter',sans-serif;letter-spacing:0.02em}
-.arc.on circle,.arc.on text{opacity:1}
+.arc.on circle,.arc.on text{opacity:1;visibility:visible}
 .ac-asp{--c:var(--ok)}.ac-o{--c:var(--o)}.ac-io{--c:var(--io)}.ac-v{--c:var(--mut)}
 .toc{display:flex;gap:28px;align-items:center;padding:8px 0}
 .toc .no{font:700 54px/1 'Source Serif 4',Georgia,serif;color:var(--s);margin:0;width:72px;text-align:left}
@@ -108,8 +110,8 @@ td{padding:16px 18px;border-bottom:1.5px solid var(--line);vertical-align:top}
 .cred{margin-top:36px;display:flex;flex-direction:column;gap:10px;max-width:620px}
 .cl{display:grid;grid-template-columns:156px auto;align-items:baseline;gap:20px}
 .cl span{font:600 16px/1.4 'Inter',sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:var(--mut);white-space:nowrap}
-.cl b{font:600 24px/1.4 'Inter','Noto Sans SC',sans-serif;color:var(--ink)}
-.cd{margin-top:14px;padding-top:14px;border-top:1.5px solid var(--line);font:500 20px/1.4 'Inter',sans-serif;color:var(--mut);letter-spacing:0.04em}
+.cl b{font:italic 400 24px/1.4 'Inter','Noto Sans SC',sans-serif;color:var(--mut);letter-spacing:0.02em}
+.cd{margin-top:16px;padding-top:16px;border-top:1.5px solid var(--line);font:500 16px/1.5 'Inter',sans-serif;color:#475569;letter-spacing:0.14em;text-transform:uppercase}
 #pb{position:absolute;left:0;bottom:0;height:5px;background:var(--s);transition:width .4s}
 #pg{position:absolute;right:48px;bottom:20px;font:500 18px/1 'Inter',sans-serif;letter-spacing:0.04em;color:var(--mut)}
 
